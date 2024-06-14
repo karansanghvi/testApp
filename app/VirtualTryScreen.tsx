@@ -1,10 +1,58 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import HamburgerIcon from '../components/HamburgerIcon';
 import * as ImagePicker from 'expo-image-picker';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { db } from './firebaseConfig'; // Adjust the import path if necessary
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+
+// Import all images
+import bigImage1 from '../assets/images/big_image1.jpeg';
+import bigImage2 from '../assets/images/big_image2.jpeg';
+import bigImage3 from '../assets/images/big_image3.jpeg';
+import bigImage4 from '../assets/images/big_image4.jpeg';
+import smallImage1 from '../assets/images/small_image1.jpeg';
+import smallImage2 from '../assets/images/small_image2.jpg';
+import smallImage3 from '../assets/images/small_image3.jpg';
+import smallImage4 from '../assets/images/small_image4.jpg';
 
 export default function VirtualTryScreen() {
     const [image, setImage] = useState(null);
+    const [isMale, setIsMale] = useState(true); // Default to true assuming male
+    const navigation = useNavigation();
+    const route = useRoute();
+    const { userId } = route.params;
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    
+                    setIsMale(userData.gender === 'Male'); // Set isMale based on fetched data
+                    console.log('isMale state:', isMale);
+                } else {
+                    console.error('User document not found');
+                    // Handle scenario where user document doesn't exist
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                // Handle error fetching user data
+            }
+        };
+
+        fetchUserData();
+    }, [userId]);
+
+    if (!userId) {
+        console.error('No userId provided');
+        return (
+            <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>No user ID provided. Please go back and try again.</Text>
+            </View>
+        );
+    }
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -16,17 +64,41 @@ export default function VirtualTryScreen() {
 
         console.log(result);
 
-        if (!result.cancelled) {
-            setImage(result.uri);
+        if (!result.cancelled && result.assets && result.assets.length > 0 && result.assets[0].uri) {
+            try {
+                await updateDoc(doc(db, 'users', userId), {
+                    profileImage: result.assets[0].uri,
+                });
+                console.log('Image URI stored in user document');
+                setImage(result.assets[0].uri);
+            } catch (error) {
+                console.error('Error updating user document with image URI:', error);
+                Alert.alert('Error', 'Failed to update profile image. Please try again.');
+            }
+        } else {
+            console.log('No valid image URI returned from ImagePicker');
         }
     };
 
-    const removeImage = () => {
-        setImage(null);
+    const removeImage = async () => {
+        try {
+            await updateDoc(doc(db, 'users', userId), {
+                profileImage: null,
+            });
+            console.log('Image removed from user document');
+            setImage(null);
+        } catch (error) {
+            console.error('Error removing image from user document:', error);
+            Alert.alert('Error', 'Failed to remove profile image. Please try again.');
+        }
     };
 
     const handleMenuPress = () => {
         console.log('Menu pressed');
+    };
+
+    const navigateToEndScreen = () => {
+        navigation.navigate('EndScreen', { userId: userId });
     };
 
     return (
@@ -57,29 +129,32 @@ export default function VirtualTryScreen() {
             <View style={styles.row}>
                 <View style={styles.column}>
                     <Image
-                        source={require('../assets/images/small_image1.jpeg')}
+                        source={isMale ? bigImage1 : smallImage1}
                         style={styles.imageGrid}
                     />
                 </View>
                 <View style={styles.column}>
                     <Image
-                        source={require('../assets/images/small_image2.jpg')}
+                        source={isMale ? bigImage2 : smallImage2}
                         style={styles.imageGrid}
                     />
                 </View>
                 <View style={styles.column}>
                     <Image
-                        source={require('../assets/images/small_image3.jpg')}
+                        source={isMale ? bigImage3 : smallImage3}
                         style={styles.imageGrid}
                     />
                 </View>
                 <View style={styles.column}>
                     <Image
-                        source={require('../assets/images/small_image4.jpg')}
+                        source={isMale ? bigImage4 : smallImage4}
                         style={styles.imageGrid}
                     />
                 </View>
             </View>
+            <TouchableOpacity style={styles.buttonContainer} onPress={navigateToEndScreen}>
+                <Text style={styles.buttonText}>Go to End Screen</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -103,21 +178,21 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         borderWidth: 1,
+        height: '30%',
         borderStyle: 'dashed',
         borderColor: '#3a3aad',
         borderRadius: 5,
-        padding: 100, 
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
     },
     imageContainerWithImage: {
-        padding: 20, 
+        padding: 20,
     },
     image: {
         width: 200,
         height: 200,
-        marginBottom: 10, 
+        marginBottom: 10,
     },
     addImageText: {
         color: 'white',
@@ -172,5 +247,29 @@ const styles = StyleSheet.create({
     imageGrid: {
         width: '100%',
         height: 200,
+    },
+    buttonContainer: {
+        backgroundColor: '#fa07b9',
+        paddingVertical: 12,
+        paddingHorizontal: 120,
+        borderRadius: 6,
+        alignSelf: 'center',
+        marginTop: 20,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        textAlign: 'center',
+    },
+    errorContainer: {
+        flex: 1,
+        backgroundColor: 'black',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText: {
+        color: 'white',
+        fontSize: 18,
+        textAlign: 'center',
     },
 });

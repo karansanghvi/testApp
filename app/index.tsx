@@ -1,24 +1,31 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { useNavigation } from '@react-navigation/native'; 
+import { Text, View, StyleSheet, Image, TouchableOpacity, Alert } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import { db } from './firebaseConfig'; // Ensure the path is correct
+import { addDoc, collection } from 'firebase/firestore';
 
 export default function Index() {
   const navigation = useNavigation(); 
-
   const [selectedOption, setSelectedOption] = useState(null);
 
   const handleSelection = (option) => {
     setSelectedOption(option === selectedOption ? null : option);
   };
 
-  const handleProceedButton = () => {
+  const handleProceedButton = async () => {
     if (selectedOption) {
-          console.log('Selected option:', selectedOption);
-          navigation.navigate('YoungScreen'); 
-        } else {
-          alert('Please select a gender.');
-        }
-  }
+      try {
+        const docRef = await addDoc(collection(db, "users"), { gender: selectedOption });
+        console.log('User added with ID: ', docRef.id);
+        navigation.navigate('YoungScreen', { userId: docRef.id }); 
+      } catch (e) {
+        console.error("Error adding document: ", e);
+        alert('Error saving your selection. Please try again.');
+      }
+    } else {
+      alert('Please select a gender.');
+    }
+  };
 
   return (
     <View style={styles.main}>

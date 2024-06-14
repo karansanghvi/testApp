@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Index from "../app/index";
 import YoungScreen from "../app/YoungScreen"; 
 import VirtualTryScreen from "./VirtualTryScreen";
+import EndScreen from "../app/EndScreen"; // Import the EndScreen component
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +31,14 @@ export default function RootLayout() {
           headerShown: false
         }}
       />
+            <Stack.Screen
+        name="EndScreen"
+        component={EndScreen}
+        options={{
+          headerShown: false
+        }}
+      />
+
     </Stack.Navigator>
   );
 }
