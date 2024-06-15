@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   detailsContainer: {
-    backgroundColor: 'rgba(211, 211, 211, 0.2)',
+    // backgroundColor: 'rgba(211, 211, 211, 0.2)',
     borderRadius: 5,
     padding: 10,
     marginTop: 20,
