@@ -29,13 +29,15 @@ export default function Index() {
 
   return (
     <View style={styles.main}>
+            
+
       <Text style={styles.screenOneText}>Which fashion realm are you ready to explore</Text>
       <Text style={styles.smallText}>Pick your gender!</Text>
 
       <TouchableOpacity
         style={[
           styles.rowContainer,
-          selectedOption === "Male" && { backgroundColor: 'rgba(211, 211, 211, 0.5)' }, 
+          selectedOption === "Male" && { backgroundColor: 'rgba(211, 211, 211, 0.3)' }, 
         ]}
         onPress={() => handleSelection("Male")}
       >
@@ -50,7 +52,7 @@ export default function Index() {
       <TouchableOpacity
         style={[
           styles.rowContainer,
-          selectedOption === "Female" && { backgroundColor: 'rgba(211, 211, 211, 0.5)' }, 
+          selectedOption === "Female" && { backgroundColor: 'rgba(211, 211, 211, 0.3)' }, 
         ]}
         onPress={() => handleSelection("Female")}
       >
@@ -70,15 +72,29 @@ export default function Index() {
           <Text style={styles.buttonText}>Proceed</Text>
         </TouchableOpacity>
       </View>
+      <Image
+        source={require('../assets/images/bg.png')}
+        style={styles.backgroundImage}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  
   main: {
     flex: 1,
     backgroundColor: 'black',
     padding: 16,
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '120%',
+    height: '95%',
+    zIndex: -1, // Ensure the background image is behind all other elements
+    opacity: 0.8, // Adjust the opacity to make the background visible but not too overwhelming
   },
   screenOneText: {
     color: 'white',
@@ -96,7 +112,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(211, 211, 211, 0.2)', 
+    backgroundColor: 'rgba(211, 211, 211, 0.1)', 
     padding: 10,
     borderRadius: 8, 
     marginTop: 40,
