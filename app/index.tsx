@@ -126,11 +126,16 @@ const styles = StyleSheet.create({
   },
   containerOneMiniText: {
     color: 'grey',
-    marginLeft: -60,
+    textAlign: 'left',
+    marginStart: -179,
+    width: '30%',
+        
   },
   containerTwoMiniText: {
     color: 'grey',
-    marginLeft: -120,
+    textAlign: 'left',
+    marginStart: -196,
+    width: '30%',
   },
   image: {
     width: 100,
@@ -138,8 +143,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     backgroundColor: '#fa07b9',
-    paddingVertical: 12,
-    paddingHorizontal: 120,
+    paddingVertical: 14,
+    paddingHorizontal: 155,
     borderRadius: 6,
     alignSelf: 'center',
     marginTop: 100,
@@ -149,3 +154,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   }
 });
+
+//image & font size
+//fashion line take above
